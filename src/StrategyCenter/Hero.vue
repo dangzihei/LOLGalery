@@ -1,48 +1,54 @@
 <template>
     <div class="hero">
-        <h2>英雄列表</h2>
         <div class="type">
-            <el-input v-model="inputText"  placeholder="搜索" :suffix-icon="Search" style="background-color: black;"/>
+            <el-input v-model="inputText" placeholder="请输入" style="background-color: rgb(25,29,36);" @input="searchHero"
+                :suffix-icon="Search">
+            </el-input>
             <div class="typeFivePos">
-                <span :class="typeFivePosInd==0?'highlight':''"  @click="typeFivePosInd = 0">全部定位</span>
-                <span :class="typeFivePosInd==1?'highlight':''"  @click="typeFivePosInd = 1">上路</span>
-                <span :class="typeFivePosInd==2?'highlight':''"  @click="typeFivePosInd = 2">打野</span>
-                <span :class="typeFivePosInd==3?'highlight':''"  @click="typeFivePosInd = 3">中路</span>
-                <span :class="typeFivePosInd==4?'highlight':''"  @click="typeFivePosInd = 4">下路</span>
-                <span :class="typeFivePosInd==5?'highlight':''"  @click="typeFivePosInd = 5">辅助</span>
+                <span :class="road == 'all' ? 'highlight' : ''" @click="changeLoadFun('all')">全部定位</span>
+                <span :class="road == 'top' ? 'highlight' : ''" @click="changeLoadFun('top')">上路</span>
+                <span :class="road == 'jungle' ? 'highlight' : ''" @click="changeLoadFun('jungle')">打野</span>
+                <span :class="road == 'mid' ? 'highlight' : ''" @click="changeLoadFun('mid')">中路</span>
+                <span :class="road == 'bottom' ? 'highlight' : ''" @click="changeLoadFun('bottom')">下路</span>
+                <span :class="road == 'support' ? 'highlight' : ''" @click="changeLoadFun('support')">辅助</span>
             </div>
             <div class="typeSixPos">
-                <span :class="typeSixPosInd==0?'highlight':''"  @click="typeSixPosInd = 0">全部定位</span>
-                <span :class="typeSixPosInd==1?'highlight':''"  @click="typeSixPosInd = 1">战士</span>
-                <span :class="typeSixPosInd==2?'highlight':''"  @click="typeSixPosInd = 2">法师</span>
-                <span :class="typeSixPosInd==3?'highlight':''"  @click="typeSixPosInd = 3">刺客</span>
-                <span :class="typeSixPosInd==4?'highlight':''"  @click="typeSixPosInd = 4">射手</span>
-                <span :class="typeSixPosInd==5?'highlight':''"  @click="typeSixPosInd = 5">坦克</span>
-                <span :class="typeSixPosInd==6?'highlight':''"  @click="typeSixPosInd = 6">辅助</span>
+                <span :class="type == 'all' ? 'highlight' : ''" @click="changeTypeFun('all')">全部定位</span>
+                <span :class="type == 'fighter' ? 'highlight' : ''" @click="changeTypeFun('fighter')">战士</span>
+                <span :class="type == 'mage' ? 'highlight' : ''" @click="changeTypeFun('mage')">法师</span>
+                <span :class="type == 'assassin' ? 'highlight' : ''" @click="changeTypeFun('assassin')">刺客</span>
+                <span :class="type == 'marksman' ? 'highlight' : ''" @click="changeTypeFun('marksman')">射手</span>
+                <span :class="type == 'tank' ? 'highlight' : ''" @click="changeTypeFun('tank')">坦克</span>
+                <span :class="type == 'support' ? 'highlight' : ''" @click="changeTypeFun('support')">辅助</span>
             </div>
         </div>
         <ul class="heroList">
-            <li>
+            <li v-for="item in heroShowList" :key="item.heroId">
                 <a href="#javascript">
-                    <div  class="heroItem">
+                    <div class="heroItem">
                         <div>
                             <!-- 精灵图：https://game.gtimg.cn/images/lol/lolstrategy/spr_info_overview.png -->
-                            <!-- support 辅助 0 0 22 18
+                            <!-- 
+                                load
+                                support 辅助 0 0 22 18
                                 jungle 打野 -51 0 18 22
                                 bottom 下路 0 -23 19 19
                                 top 上路 -27 0 19 19
                                 mid  中路 -27 -24 18 18
-                                类型而
+                                type
                                 marksman 射手
                                 assassin 刺客
+                                mage 法师
+                                fighter 战士
+                                tank  坦克
+                                support 辅助
                                  -->
-                                 <!-- 分路数据：https://lol.qq.com/act/lbp/common/guides/guideschampion_p -->
                             <i></i>
                         </div>
                         <!-- 图片：https://game.gtimg.cn/images/lol/act/img/skinloading/133000.jpg -->
-                        <img src="" alt="">
+                        <img :src="item.src" alt="">
                     </div>
-                    <p></p>
+                    <p>{{ item.name }}</p>
                 </a>
             </li>
         </ul>
@@ -50,43 +56,165 @@
 </template>
 
 <script setup>
-import{ref} from 'vue'
+import { ref, reactive } from 'vue'
 import {
-  Search,
+    Search,
 } from '@element-plus/icons-vue'
-fetch('https://game.gtimg.cn/images/lol/act/img/js/heroList/hero_list.js?ts=2778634').then(res => {
-    return res.json()
-}).then(res => {
-    console.log(res, 111);
-})
-var inputText = ref('') 
-var typeSixPosInd = ref(0)
-var typeFivePosInd = ref(0)
+// 存放请求来的全部数据
+var heroList = ref([])
+// 存放用来渲染的数组
+var heroShowList = ref([]);
+// 记录英雄性质
+var type = ref('all')
+// 记录英雄分路
+var road = ref('all')
+var inputText = ref('')
+// 根据heroId显示分路
+console.log(CHAMPION_POSITION);
+// 请求全部数据
+function heroListReq() {
+    fetch('https://game.gtimg.cn/images/lol/act/img/js/heroList/hero_list.js?ts=2778634')
+        .then(res => {
+            return res.json()
+        })
+        .then(res => {
+            console.log(res.hero);
+            heroList.value = res.hero;
+            heroList.value.forEach(el => {
+                // 给英雄的图片存放在每一个的对象的src字段中
+                el.src = `https://game.gtimg.cn/images/lol/act/img/skinloading/${el.heroId}000.jpg`
+                // 将英雄的分路存放在每一个的对象的road字段中
+                switch (el.heroId * 1) {
+                    case 70:
+                        el.road = ["mid", "jungle", "support"]
+                        break;
+                    case 71:
+                        el.road = ["bottom"]
+                        break;
+                    case 72:
+                        el.road = ["mid", "top",]
+                        break;
+                    case 73:
+                        el.road = ["top"]
+                        break;
+                    case 136:
+                        el.road = ["mid"]
+                        break;
+                    case 427:
+                        el.road = ["jungle"]
+                        break;
+                    default:
+                        el.road = Object.keys(CHAMPION_POSITION.list[el.heroId])
+                        break;
+                }
+            });
+            heroShowList.value = heroList.value
+        })
+}
+heroListReq();
+
+// 点击更换道路方法
+function changeLoadFun(para) {
+    if (road.value == para) {
+        return
+    }
+    road.value = para;
+    heroShowFun()
+}
+// 点击更换类型方法
+function changeTypeFun(params) {
+    if (type.value == params) {
+        return
+    }
+    type.value = params
+    heroShowFun()
+}
+// 根据要求返回指定的数组
+function heroShowFun() {
+    // heroList中每一个元素的roles字段存放type变量对应的英雄的角色类型;road字段中存放road变量对应的分路
+    heroShowList.value = [];
+    if (type.value == "all" && road.value == "all") {
+        heroShowList.value = heroList.value
+    }
+    else if (type.value == "all" && road.value != "all") {
+        heroList.value.forEach(v => {
+            if (v['road'].includes(road.value)) {
+                heroShowList.value.push(v)
+            }
+        })
+    }
+    else if (type.value != "all" && road.value == "all") {
+        heroList.value.forEach(v => {
+            if (v['roles'].includes(type.value)) {
+                heroShowList.value.push(v)
+            }
+        })
+    }
+    else {
+        heroList.value.forEach(v => {
+            if (v['roles'].includes(type.value) && v['road'].includes(road.value)) {
+                heroShowList.value.push(v)
+            }
+        })
+    }
+}
+// 搜索英雄的按钮
+function searchHero() {
+    heroShowList.value = [];
+    if (!inputText.value) {
+        heroShowFun()
+        return
+    }
+    console.log(inputText.value);
+    // keywords字段存储的搜索关键字
+    heroList.value.forEach(v => {
+        if (v['keywords'].includes(inputText.value)) {
+            heroShowList.value.push(v)
+        }
+    })
+}
 </script>
 
 <style scoped>
 .hero {
     color: rgb(121, 110, 110);
     z-index: 2;
-    height: 1000px;
+    background-image: url(https://game.gtimg.cn/images/lol/lolstrategy/bg.jpg);
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    overflow: hidden;
 }
+
 .type {
-    width: 800px;
+    margin: 150px auto 20px;
+    width: 86%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
+    flex-wrap: wrap;
 }
-.type .el-input{
-    width: 100px;
+
+.type .el-input {
+    width: 200px;
+    margin-bottom: 30px;
 }
-.typeFivePos{
+
+.typeFivePos {
     display: flex;
+    min-width: 295px;
+    background-color: rgb(25, 29, 36);
+    margin-bottom: 30px;
 }
-.typeSixPos{
+
+.typeSixPos {
     display: flex;
-    
+    min-width: 295px;
+    background-color: rgb(25, 29, 36);
+    margin-bottom: 30px;
 }
-.type span{
+
+.type span {
     display: block;
     height: 100%;
     padding: 7px;
@@ -94,9 +222,60 @@ var typeFivePosInd = ref(0)
     font-size: 14px;
     cursor: pointer;
 }
-.highlight{
+
+.highlight {
     border: 1px solid rgb(195, 143, 44) !important;
     color: rgb(195, 143, 44) !important;
 }
 
+.heroList {
+    width: 90%;
+    margin: 40px auto 0;
+    /* border: 1px solid rgb(235, 68, 68); */
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+}
+
+.heroList>li {
+    width: 15%;
+    margin-right: 1.4%;
+    margin-bottom: 10px;
+    border: 1px solid #313e4c;
+    background-color: rgb(17, 20, 25);
+    transition: all .3s;
+}
+
+.heroList>li:hover {
+    border: 1px solid rgb(195, 143, 44);
+    transform: scale(1.1) translateY(-20px);
+}
+
+.heroItem {
+    width: 94%;
+    margin: 3%;
+}
+
+.heroItem img {
+    width: 100%;
+}
+
+.heroList>li p {
+    text-align: center;
+    color: rgb(212, 203, 203);
+}
+
+/* load
+    support 辅助 0 0 22 18
+    jungle 打野 -51 0 18 22
+    bottom 下路 0 -23 19 19
+    top 上路 -27 0 19 19
+    mid  中路 -27 -24 18 18 */
+.top {
+    background-image: url(https://game.gtimg.cn/images/lol/lolstrategy/spr_info_overview.png);
+    background-position: 0 0;
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+}
 </style>

@@ -78,7 +78,7 @@
           </div>
         </el-header>
         <!-- 右边内容栏 -->
-        <el-main>
+        <el-main  :style='{width:`${isCollapse?"calc(100vw - 70px)":"calc(100vw - 140px)"}`}'>
           <router-view v-slot="{ Component }">
             <keep-alive>
               <component :is="Component" />
@@ -225,7 +225,7 @@ const isCollapse = ref(true)
   width: 100vw;
   height: 50px;
   background-color: rgb(26, 32, 38);
-  min-width: 1130px;
+  /* min-width: 1130px; */
   position: fixed;
   top: 0;
   left: 0;
@@ -254,14 +254,12 @@ const isCollapse = ref(true)
 .el-main {
   position: fixed;
   top: 50px;
-  min-width: 1130px;
+  /* min-width: 1130px; */
+  transition: all .5s;
   border: 1px solid #000;
+  height: calc(100vh - 50px);
   background-color: rgb(27, 33, 40);
-  position: relative;
-  background-image: url(https://game.gtimg.cn/images/lol/lolstrategy/bg.jpg);
-  background-position: 0 0;
-  background-size: 100% auto;
-  background-repeat: no-repeat;
+  padding: 0;
 }
 
 
