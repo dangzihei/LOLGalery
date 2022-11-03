@@ -88,40 +88,12 @@
 
 <script setup>
 import { ref } from 'vue'
+import VueRouter from "./router/router";
 import {
   ArrowLeft,
   ArrowRight,
 } from '@element-plus/icons-vue'
-var leftTabBar = ref([
-  {
-    title: '峡谷排位',
-    path: '/'
-  },
-  {
-    title: '大乱斗',
-    path: '/Melee'
-  },
-  {
-    title: '最佳双排',
-    path: '/DbRank'
-  },
-  {
-    title: '精品攻略',
-    path: '/Strategy'
-  },
-  {
-    title: '英雄列表',
-    path: '/Hero'
-  },
-  {
-    title: '装备列表',
-    path: '/Kit'
-  },
-  {
-    title: '趣味数据',
-    path: '/FunData'
-  },
-])
+var leftTabBar = ref([...VueRouter.routes])
 // 展开或关闭的变量
 const isCollapse = ref(true)
 

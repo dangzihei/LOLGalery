@@ -4,15 +4,7 @@
 </template>
 
 <script setup>
-import { ref,getCurrentInstance } from 'vue'
-const { proxy } =getCurrentInstance();
-// 接受全局的请求的数据
-var heroList = ref([...proxy.$reqHeroList.hero]);
-console.log(heroList.value);
-// onBeforeMount(async ()=>{
-//     console.log(heroList.value);
-// })
-// console.log(heroList.value);
+import { ref } from 'vue'
 // 请求全部数据:https://game.gtimg.cn/images/lol/act/img/js/heroList/hero_list.js?ts=2778982
 // 英雄头像:https://game.gtimg.cn/images/lol/act/img/champion/Vi.png
     
