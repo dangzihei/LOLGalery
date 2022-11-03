@@ -99,27 +99,27 @@ var leftTabBar = ref([
   },
   {
     title: '大乱斗',
-    path: 'Melee'
+    path: '/Melee'
   },
   {
     title: '最佳双排',
-    path: 'DbRank'
+    path: '/DbRank'
   },
   {
     title: '精品攻略',
-    path: 'Strategy'
+    path: '/Strategy'
   },
   {
     title: '英雄列表',
-    path: 'Hero'
+    path: '/Hero'
   },
   {
     title: '装备列表',
-    path: 'Kit'
+    path: '/Kit'
   },
   {
     title: '趣味数据',
-    path: 'FunData'
+    path: '/FunData'
   },
 ])
 // 展开或关闭的变量
