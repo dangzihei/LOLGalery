@@ -70,15 +70,16 @@ var type = ref('all')
 var road = ref('all')
 var inputText = ref('')
 // 根据heroId显示分路
-console.log(CHAMPION_POSITION);
+// console.log(CHAMPION_POSITION);
 // 请求全部数据
 function heroListReq() {
+    //     https://game.gtimg.cn/images/lol/act/img/js/heroList/hero_list.js?ts=2778982
     fetch('https://game.gtimg.cn/images/lol/act/img/js/heroList/hero_list.js?ts=2778634')
         .then(res => {
             return res.json()
         })
         .then(res => {
-            console.log(res.hero);
+            console.log(res.hero,33333);
             heroList.value = res.hero;
             heroList.value.forEach(el => {
                 // 给英雄的图片存放在每一个的对象的src字段中
@@ -165,7 +166,7 @@ function searchHero() {
         heroShowFun()
         return
     }
-    console.log(inputText.value);
+    // console.log(inputText.value);
     // keywords字段存储的搜索关键字
     heroList.value.forEach(v => {
         if (v['keywords'].includes(inputText.value)) {
@@ -178,7 +179,6 @@ function searchHero() {
 <style scoped>
 .hero {
     color: rgb(121, 110, 110);
-    z-index: 2;
     background-image: url(https://game.gtimg.cn/images/lol/lolstrategy/bg.jpg);
     background-position: 0 0;
     background-repeat: no-repeat;

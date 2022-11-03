@@ -4,7 +4,9 @@ import './style.css'
 import App from './App.vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import request from '@/request/request'
 
+var app = createApp(App);
+app.config.globalProperties.$reqHeroList= await request.requestHeroList()
 
-
-createApp(App).use(ElementPlus).use(vueRouter).mount('#app')
+app.use(ElementPlus).use(vueRouter).mount('#app')

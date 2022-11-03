@@ -79,11 +79,7 @@
         </el-header>
         <!-- 右边内容栏 -->
         <el-main  :style='{width:`${isCollapse?"calc(100vw - 70px)":"calc(100vw - 140px)"}`}'>
-          <router-view v-slot="{ Component }">
-            <keep-alive>
-              <component :is="Component" />
-            </keep-alive>
-          </router-view>
+          <router-view></router-view>
         </el-main>
       </el-container>
     </el-container>
@@ -254,7 +250,6 @@ const isCollapse = ref(true)
 .el-main {
   position: fixed;
   top: 50px;
-  /* min-width: 1130px; */
   transition: all .5s;
   border: 1px solid #000;
   height: calc(100vh - 50px);
