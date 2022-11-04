@@ -43,6 +43,12 @@ const routes = [
         title: '趣味数据',
         component: () => import('../StrategyCenter/FunData.vue')
     },
+    {
+        path: '/Detail',
+        name: 'Detail',
+        title: '英雄详情',
+        component: () => import('../StrategyCenter/Detail.vue')
+    }
 ]
 
 routes.forEach(i => {
