@@ -1,3 +1,3 @@
 # LOLGallery
 
-league of legends heros galery.
+league of legends heros gallery.
