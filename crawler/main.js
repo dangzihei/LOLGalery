@@ -13,6 +13,8 @@ const fs = require('fs');
     await page.goto('https://101.qq.com/#/hero-detail?heroid=1&tab=overview&hero2_id=115&datatype=5v5')
 
     // 使用evaluate方法在浏览器中执行传入函数（完全的浏览器环境，所以函数内可以直接使用window、document等所有对象和方法）
+    await page.waitForSelector('#app > div > div.app-main > div > div.hero-details.hero-details-5v5 > div.hero-show > div.hero-intro > p')
+    
     let data = await page.evaluate(() => {
         let res = {}
         let heroName = document.querySelector('.hero-show .hero-intro .hero-name')
@@ -37,7 +39,9 @@ const fs = require('fs');
     })
     
     console.log(data)
-    // 此处是网站根目录
-    fs.writeFileSync('../web/detail.data.json',JSON.stringify(data))
+    // 此处是网站根目录../web/detail.data.json  
+    fs.writeFileSync('../web/public/detail.data.json',JSON.stringify(data))
+    //发布时C:/inetpub/wwwroot/lol/detail.data.json
+    // fs.writeFileSync('C:/inetpub/wwwroot/lol/detail.data.json',JSON.stringify(data))
     browser.close()
 })()

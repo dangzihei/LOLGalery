@@ -24,7 +24,7 @@
         </div>
         <ul class="heroList">
             <li v-for="item in heroShowList" :key="item.heroId">
-                <a href="#javascript">
+                <a :href='basePath+"Detail?id="+item.heroId'>
                     <div class="heroItem">
                         <div>
                             <!-- 精灵图：https://game.gtimg.cn/images/lol/lolstrategy/spr_info_overview.png -->
@@ -60,6 +60,7 @@ import { ref, reactive } from 'vue'
 import {
     Search,
 } from '@element-plus/icons-vue'
+const basePath = import.meta.env.BASE_URL;
 // 存放请求来的全部数据
 var heroList = ref([])
 // 存放用来渲染的数组
@@ -68,9 +69,9 @@ var heroShowList = ref([]);
 var type = ref('all')
 // 记录英雄分路
 var road = ref('all')
+// 搜索框
 var inputText = ref('')
-// 根据heroId显示分路
-// console.log(CHAMPION_POSITION);
+// 根据heroId显示分路  CHAMPION_POSITION
 // 请求全部数据
 function heroListReq() {
     //     https://game.gtimg.cn/images/lol/act/img/js/heroList/hero_list.js?ts=2778982
@@ -105,10 +106,15 @@ function heroListReq() {
                         el.road = ["jungle"]
                         break;
                     default:
-                        el.road = Object.keys(CHAMPION_POSITION.list[el.heroId])
+                        if (CHAMPION_POSITION.list[el.heroId] == undefined) {
+                            el.road = ["all"]
+                        } else {
+                            el.road = Object.keys(CHAMPION_POSITION.list[el.heroId])
+                        }
                         break;
-                }
-            });
+                    }
+                });
+                // el.road = Object.keys(CHAMPION_POSITION.list[el.heroId])
             heroShowList.value = heroList.value
         })
 }
@@ -174,6 +180,12 @@ function searchHero() {
         }
     })
 }
+
+// 跳转详情界面
+// function goDetail(params){
+//     console.log(params);
+//     console.log(router);
+// }
 </script>
 
 <style scoped>

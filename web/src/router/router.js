@@ -5,6 +5,9 @@ const routes = [
         path: '/',
         name: 'Rank',
         title: '峡谷排位',
+        meta:{
+          show:true  
+        },
         component: () => import('../StrategyCenter/Rank.vue')
     },
     {
