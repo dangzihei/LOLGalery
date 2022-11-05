@@ -23,15 +23,13 @@
 // console.log(request,'222');
 // request.createScriptEl('https://lol.qq.com/act/lbp/common/guides/champDetail/champDetail_1.js?ts=2779196');
 import { reactive,ref } from "vue";
-import dataObj from "../../public/detail.data.json";
 import { useRoute } from "vue-router";
 let route = useRoute();
 // 传递的参数
 console.log(route.query.id);
-
 fetch(`https://game.gtimg.cn/images/lol/act/img/js/hero/${route.query.id}.js?ts=2779096`).then(res=>res.json()).then(res=>{
+    // skins是皮肤  spells是技能 difficultyL是难度
     console.log(res,'444');
-    console.log(...res.skins);
     skinList.push(...res.skins)
     bgImage.value =  res.skins[0].sourceImg;
     res.skins.forEach(item => {
@@ -46,8 +44,11 @@ var skinList = reactive([]);
 var bgImage = ref()
 var showSkins = reactive([]);
 var spellList = reactive([]);
-// skins是皮肤  spells是技能 difficultyL是难度
-console.log(dataObj,'000');
+fetch(import.meta.env.BASE_URL+`heros/detail.${route.query.id}.json`).then(res=>{
+    return res.json()
+}).then(res=>{
+    console.log(res);
+})
 </script>
 <style scoped>
 .detail {

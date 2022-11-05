@@ -77,7 +77,7 @@ async function getHeroData(link) {
     page.close()
 }
 
-start()
-console.log(123);
-
-setInterval(() => {}, 5000)
+   
+setInterval(() => {
+    start()    
+}, 6*60*60*1000)
