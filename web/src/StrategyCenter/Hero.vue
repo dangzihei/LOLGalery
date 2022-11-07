@@ -24,7 +24,7 @@
         </div>
         <ul class="heroList">
             <li v-for="item in heroShowList" :key="item.heroId">
-                <router-link :to='basePath+"Detail?id="+item.heroId'>
+                <router-link :to='basePath+"Detail?id="+item.heroId+"&type=1"'>
                     <div class="heroItem">
                         <div>
                             <!-- 精灵图：https://game.gtimg.cn/images/lol/lolstrategy/spr_info_overview.png -->
