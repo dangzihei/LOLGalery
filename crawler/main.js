@@ -4,7 +4,7 @@ const url = require('node:url');
 const baseUrl = require('./env.json')
 
 let pptBrowser = undefined
-
+let result1 = undefined;
 async function start() {
     // 启动浏览器
     pptBrowser = await puppeteer.launch({
@@ -31,6 +31,7 @@ async function start() {
             console.error(error)
         }
     }
+    console.log(result1);
     pptBrowser.close()
 }
 
@@ -44,7 +45,7 @@ async function getHeroData(link) {
     // 使用evaluate方法在浏览器中执行传入函数（完全的浏览器环境，所以函数内可以直接使用window、document等所有对象和方法）
     await page.waitForSelector('#app > div > div.app-main > div > div.hero-details.hero-details-5v5 > div.details-container > div.details-content > div > div.left > div.rune-recommend > div:nth-child(2) > div.rune-primary-wrap.rune-wrap2 > div:nth-child(2) > div > img')
 
-    let data = await page.evaluate(() => {
+    let data = await page.evaluate(async () => {
         let res = {}
         let heroName = document.querySelector('.hero-show .hero-intro .hero-name')
         let heroType = document.querySelector('.hero-show .hero-intro .hero-type')
@@ -54,6 +55,8 @@ async function getHeroData(link) {
         let dbRank = document.querySelectorAll('.bestdb img')
         let runeList = document.querySelectorAll('.rune-recommend .rune-item')
         let equipmentRecommend = document.querySelectorAll('.equipment-recommend .equipment-cont')
+        let alignment = document.querySelector('.data-screening .right .alignment-wrap')
+        let tabList = alignment.querySelectorAll('.tab-con a')
         res['name'] = heroName.innerText;
         res['type'] = heroType.innerText;
         res['win'] = win.innerText;
@@ -61,9 +64,8 @@ async function getHeroData(link) {
         res['show'] = show.innerText;
         res['dbRank'] = [];
         res['runeCommend'] = [];
-        res.equipmentRecommend = []
-        // res.showTrend =[]
-        // res.winTrend ={edition:[],time:[],gameNum:[]}
+        res.equipmentRecommend = {}
+        res.alignment = {}
 
         for (let i = 0; i < dbRank.length; i++) {
             res['dbRank'].push({
@@ -71,6 +73,7 @@ async function getHeroData(link) {
                 alt: dbRank[i].getAttribute('alt')
             })
         }
+        // 天赋推荐
         runeList.forEach(item => {
             let obj = { rune: [], show: '', win: '' }
             item.querySelectorAll('.rune-primary').forEach(it => {
@@ -86,37 +89,76 @@ async function getHeroData(link) {
             obj.win = item.querySelector('.win-chance span').innerText;
             res.runeCommend.push(obj);
         })
+        // 装备推荐
         equipmentRecommend.forEach(item => {
-            console.log(Array.from(item.querySelector('.list .list-item')).map(it=>{
-                return{
-                    onstage:it.querySelector('.onstage-text').innerText,
-                    win:it.querySelector('.win-text').innerText,
-                    icons:[...it.querySelectorAll('.equipment-box .equipment ')].map(v=>{
-                        return {
-                            src:v.querySelector('img').getAttribute('src'),
-                            alt:v.querySelector('img').getAttribute('alt')
-                        }
+            res.equipmentRecommend[item.querySelector('.head .rec-text').innerText] = {
+                rec: item.querySelector('.head .rec-text').innerText,
+                onstage: item.querySelector('.head .onstage-text').innerText,
+                win: item.querySelector('.head .win-text').innerText,
+                list: Array.from(item.querySelectorAll('.list .list-item')).map(it => {
+                    return {
+                        onstage: it.querySelector('.onstage-text').innerText,
+                        win: it.querySelector('.win-text').innerText,
+                        icons: [...it.querySelectorAll('.equipment-box .equipment')].map(v => {
+                            return {
+                                src: v.querySelector('img').getAttribute('src'),
+                                alt: v.querySelector('img').getAttribute('alt')
+                            }
+                        })
+                    }
+                })
+            }
+
+        })
+        // 四张趋势图
+
+        // 右侧优势对象和劣势对线
+        res.alignment[titleText(tabList)] = alignmentFun(alignment);
+        tabList[1].click();
+        result1 =[tabList[1].innerText,titleText(tabList)]
+        // setTimeout(()=>{
+        //     res.alignment[titleText(tabList)] = alignmentFun(alignment);
+        // },2000)
+
+
+        // 根据爬取的数据
+        function alignmentFun(params) {
+            let listItem = params.querySelectorAll('.alignment-list .list-item')
+            console.log(listItem, 1111);
+            let titleList = params.querySelectorAll('.tab-con a')
+            let title = titleText(titleList)
+            let list = (() => {
+                let res = [];
+                for (let i = 0; i < listItem.length; i++) {
+                    console.log(i);
+                    res.push({
+                        id: listItem[i].querySelector('.idx').innerText,
+                        url: listItem[i].querySelector('.head-pic img').getAttribute('src'),
+                        alt: listItem[i].querySelector('.head-pic img').getAttribute('alt'),
+                        rate: listItem[i].querySelector('.progress-box span').innerText,
                     })
                 }
-            }));
-            res.equipmentRecommend.push({
-                rec:item.querySelector('.head .rec-text').innerText,
-                onstage:item.querySelector('.head .onstage-text').innerText,
-                win:item.querySelector('.head .win-text').innerText,
-                // list:Array.from(item.querySelector('.list .list-item')).map(it=>{
-                //     return{
-                //         onstage:it.querySelector('.onstage-text').innerText,
-                //         win:it.querySelector('.win-text').innerText,
-                //         icons:[...it.querySelectorAll('.equipment-box .equipment')].map(v=>{
-                //             return {
-                //                 src:v.querySelector('img').getAttribute('src'),
-                //                 alt:v.querySelector('img').getAttribute('alt')
-                //             }
-                //         })
-                //     }
-                // })
-            })
-        })
+                return res
+            })()
+            return {
+                title,
+                list
+            }
+        }
+
+        // 根据传进来的数组来判断现在点击的字段
+        function titleText(list) {
+            let res;
+            for (let i = 0; i < list.length; i++) {
+                if ([...list[i].classList].includes('on')) {
+                    res = list[i].innerText
+                    break;
+                };
+            }
+            return res
+        }
+        // await page.click(tabList[1]);
+        // res.alignment[titleText(tabList)] = alignmentFun(alignment);
         return res
     })
     // console.log(url.parse(link).hash.split('=')[1]);
@@ -128,7 +170,6 @@ async function getHeroData(link) {
     fs.writeFileSync(baseUrl.basePath + `/detail.${url.parse(link).hash.split('=')[1]}.json`, JSON.stringify(data))
     page.close()
 }
-
 
 start()
 setInterval(() => {
